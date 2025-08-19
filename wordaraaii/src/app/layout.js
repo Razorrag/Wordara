@@ -1,6 +1,6 @@
 // src/app/layout.js
 
-import "./globals.css"; // This line imports your Tailwind styles
+import "../styles/globals.css"; // Import Tailwind/global styles from src/styles
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
