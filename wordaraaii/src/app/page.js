@@ -37,14 +37,14 @@ export default function NetherAISignIn() {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        router.push('/dashboard');
+        router.push('/editor');
       } else {
         setCheckingSession(false);
       }
     };
     checkSession();
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) router.push('/dashboard');
+      if (session) router.push('/editor');
     });
     return () => subscription?.unsubscribe();
   }, [router, supabase.auth]);
