@@ -83,9 +83,44 @@ export default function NetherAISignIn() {
       } else {
         setError(error.message);
       }
+      setLoading(false);
+      return;
     }
-    else if (data.user?.identities?.length === 0) setError('User with this email already exists but is unconfirmed.');
-    else setMessage('Confirmation link sent! Please check your email.');
+
+    // If identities is empty, Supabase indicates the user exists but is unconfirmed
+    if (data.user?.identities?.length === 0) {
+      setError('User with this email already exists but is unconfirmed.');
+      setLoading(false);
+      return;
+    }
+
+    // Second step: insert the user into your public profiles table
+    try {
+      const userId = data.user?.id;
+      if (userId) {
+        const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert(
+            [{
+              user_id: userId,
+              email,
+              username,
+              first_name: firstName,
+              last_name: lastName,
+            }],
+            { onConflict: 'user_id' }
+          );
+        if (upsertError) {
+          // Surface a friendly message but don't block auth flow
+          setError(`Signed up, but failed to save profile: ${upsertError.message}`);
+          setLoading(false);
+          return;
+        }
+      }
+      setMessage('Confirmation link sent! Please check your email.');
+    } catch (e) {
+      setError('Signed up, but failed to save profile.');
+    }
     setLoading(false);
   };
 
